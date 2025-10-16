@@ -1,537 +1,618 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Health Facilities Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Health Care Facilities Dashboard</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
 
-  <style>
-    :root {
-      --primary-color: #007bff; /* A nice blue for accents */
-      --secondary-color: #6c757d;
-      --background-color: #f8f9fa; /* Light grey background */
-      --card-background: #ffffff; /* White card background */
-      --border-color: #e9ecef; /* Light border color */
-      --text-color: #212529;
-    }
+    <style>
+        :root {
+            --primary-color: #007bff; /* A nice blue for accents */
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa; /* Light grey background */
+            --card-background: #ffffff; /* White card background */
+            --border-color: #e9ecef; /* Light border color */
+            --text-color: #212529;
+            --success-color: #28a745;
+        }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--background-color);
-      color: var(--text-color);
-      margin: 0;
-      padding: 20px;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
 
-    h1 {
-      color: var(--primary-color);
-      margin-top: 0;
-      font-weight: 600;
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 10px;
-    }
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
 
-    /* Main Grid Layout for the Dashboard */
-    #dashboard-container {
-      display: grid;
-      grid-template-columns: 1fr; /* Default to single column */
-      gap: 20px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+        /* Main Grid Layout for the Dashboard */
+        #dashboard-container {
+            display: grid;
+            grid-template-columns: 1fr; /* Default to single column */
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-    @media (min-width: 992px) {
-      #dashboard-container {
-        grid-template-columns: 2fr 1fr; /* Map/Controls on the left, Results on the right */
-      }
-    }
+        @media (min-width: 992px) {
+            #dashboard-container {
+                grid-template-columns: 2fr 1fr; /* Map/Controls on the left, Results on the right */
+            }
+        }
 
-    /* Control Panel Styling */
-    #controls-panel {
-      grid-column: 1 / -1; /* Controls span the full width at the top */
-      background-color: var(--card-background);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border-color);
-    }
+        /* Control Panel Styling */
+        #controls-panel {
+            grid-column: 1 / -1; /* Controls span the full width at the top */
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
 
-    #controls {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+        #controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
 
-    label {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--secondary-color);
-    }
+        label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
 
-    /* Input/Select Styling */
-    select, button {
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
+        /* Input/Select Styling */
+        select, button {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
 
-    select {
-      border: 1px solid var(--border-color);
-      background-color: var(--card-background);
-      min-width: 150px;
-    }
+        select {
+            border: 1px solid var(--border-color);
+            background-color: var(--card-background);
+            min-width: 150px;
+        }
 
-    select:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-      outline: none;
-    }
+        select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
 
-    /* Button Styling */
-    #fetchDataButton {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-    }
+        /* Button Styling */
+        #fetchDataButton {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
 
-    #fetchDataButton:hover:not(:disabled) {
-      background-color: #0056b3;
-    }
+        #fetchDataButton:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-    .loading {
-      opacity: 0.7;
-      pointer-events: none;
-    }
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
 
-    #status {
-      font-size: 0.9rem;
-      color: var(--secondary-color);
-      font-style: italic;
-    }
+        #status {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            font-style: italic;
+        }
 
-    /* Map and Results Container */
-    #map-and-controls {
-      grid-column: 1 / -1; /* Map takes full width below controls by default */
-    }
+        /* Map and Results Container */
+        #map-and-controls {
+            grid-column: 1 / -1; /* Map takes full width below controls by default */
+        }
 
-    @media (min-width: 992px) {
-      #map-and-controls {
-        grid-column: 1 / 2; /* Map on the left on wider screens */
-      }
-    }
+        @media (min-width: 992px) {
+            #map-and-controls {
+                grid-column: 1 / 2; /* Map on the left on wider screens */
+            }
+        }
 
-    #map {
-      height: 500px;
-      width: 100%;
-      margin-top: 0; /* Remove margin, now controlled by gap */
-      display: none;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      border: 1px solid var(--border-color);
-    }
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-top: 0; /* Remove margin, now controlled by gap */
+            display: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
 
-    /* Results Panel Styling (Right side in dashboard layout) */
-    #results-panel {
-      background-color: var(--card-background);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border-color);
-    }
+        /* Results Panel Styling (Right side in dashboard layout) */
+        #results-panel {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
 
-    @media (min-width: 992px) {
-      #results-panel {
-        grid-column: 2 / 3; /* Results on the right on wider screens */
-      }
-    }
+        @media (min-width: 992px) {
+            #results-panel {
+                grid-column: 2 / 3; /* Results on the right on wider screens */
+            }
+        }
 
-    #results-panel h2 {
-      margin-top: 0;
-      color: var(--primary-color);
-      font-size: 1.5rem;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 5px;
-      margin-bottom: 15px;
-    }
-    
-    #results {
-      /* Limit height and enable scrolling for the results section */
-      max-height: 600px; 
-      overflow-y: auto;
-      padding-right: 5px; /* Space for the scrollbar */
-    }
+        #results-panel h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        #results {
+            /* Limit height and enable scrolling for the results section */
+            max-height: 600px; 
+            overflow-y: auto;
+            padding-right: 5px; /* Space for the scrollbar */
+        }
 
-    /* Individual Facility Card */
-    .facility {
-      border: 1px solid var(--border-color);
-      background-color: #fefefe;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      transition: transform 0.1s;
-    }
+        /* Individual Facility Card */
+        .facility {
+            border: 1px solid var(--border-color);
+            background-color: #fefefe;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: transform 0.1s;
+        }
 
-    .facility:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
+        .facility:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-    .facility h3 {
-      margin: 0 0 8px 0;
-      color: var(--primary-color);
-      font-size: 1.1rem;
-    }
+        .facility h3 {
+            margin: 0 0 8px 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
 
-    .facility p {
-      margin: 4px 0;
-      font-size: 0.9rem;
-    }
+        .facility p {
+            margin: 4px 0;
+            font-size: 0.9rem;
+        }
 
-    .facility a {
-      color: var(--primary-color);
-      text-decoration: none;
-    }
+        .facility a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
 
-    .facility a:hover {
-      text-decoration: underline;
-    }
-  </style>
+        .facility a:hover {
+            text-decoration: underline;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            background-color: var(--success-color);
+            color: white;
+            padding: 2px 8px;
+            margin-right: 5px;
+            margin-top: 5px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
-  <h1>Health Facilities Dashboard</h1>
+    <h1>Health Care Facilities Dashboard</h1>
 
-  <div id="dashboard-container">
-    
-    <div id="controls-panel">
-      <div id="controls">
-        <button id="fetchDataButton">Fetch Health Facilities</button>
+    <div id="dashboard-container">
+        
+        <div id="controls-panel">
+            <div id="controls">
+                <button id="fetchDataButton">Fetch Health Facilities</button>
 
-        <label for="typeFilter">Type:</label>
-        <select id="typeFilter" disabled>
-          <option value="__ALL__">All types</option>
-        </select>
+                <label for="typeFilter">Type:</label>
+                <select id="typeFilter" disabled>
+                    <option value="__ALL__">All types</option>
+                </select>
 
-        <label for="ownerFilter">Ownership:</label>
-        <select id="ownerFilter" disabled>
-          <option value="__ALL__">All ownerships</option>
-        </select>
-
-        <span id="status">Ready</span>
-      </div>
-    </div>
-
-    <div id="map-and-controls">
-        <div id="map"></div>
-    </div>
-
-    <div id="results-panel">
-        <h2>Facilities List</h2>
-        <div id="results">
-            <p>Click "Fetch Health Facilities" to load data from OpenStreetMap's Overpass API.</p>
-            <p>The map area is currently set to the region around Islamabad/Rawalpindi (33.50,72.80,33.70,73.20).</p>
+                <label for="ownerFilter">Ownership:</label>
+                <select id="ownerFilter" disabled>
+                    <option value="__ALL__">All ownerships</option>
+                </select>
+                
+                <label for="featureFilter">Feature:</label>
+                <select id="featureFilter" disabled>
+                    <option value="__ALL__">All features</option>
+                </select>
+                <span id="status">Ready</span>
+            </div>
         </div>
-    </div>
 
-  </div> <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <div id="map-and-controls">
+            <div id="map"></div>
+        </div>
 
-  <script>
-    let map;
-    let markers = [];
-    let allPois = [];
-    const ALL = "__ALL__";
+        <div id="results-panel">
+            <h2>Facilities List</h2>
+            <div id="results">
+                <p>Click "Fetch Health Facilities" to load data from OpenStreetMap's Overpass API.</p>
+                <p>The map area is currently set to the combined region of **Islamabad** (33.55,72.80,33.85,73.20) and **Rawalpindi** (33.50,72.80,33.70,73.20).</p>
+            </div>
+        </div>
 
-    const fetchBtn = document.getElementById('fetchDataButton');
-    const statusEl = document.getElementById('status');
-    const typeFilterEl = document.getElementById('typeFilter');
-    const ownerFilterEl = document.getElementById('ownerFilter');
+    </div> <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
-    // Normalize safely
-    function norm(v) {
-      return String(v ?? '').toLowerCase().trim();
-    }
+    <script>
+        let map;
+        let markers = [];
+        let allPois = [];
+        const ALL = "__ALL__";
+        
+        // Define the key features we want to check for and filter by
+        const SERVICE_TAGS = ['emergency', 'operating_centre', 'beds', 'dentist']; 
 
-    function firstNonEmpty(...vals) {
-      for (const v of vals) {
-        if (v && String(v).trim().length) return v;
-      }
-      return '';
-    }
+        const fetchBtn = document.getElementById('fetchDataButton');
+        const statusEl = document.getElementById('status');
+        const typeFilterEl = document.getElementById('typeFilter');
+        const ownerFilterEl = document.getElementById('ownerFilter');
+        const featureFilterEl = document.getElementById('featureFilter'); 
 
-    // Extract a consistent ownership string from tags
-    function getOwnership(tags = {}) {
-      // Prefer explicit 'ownership', fallback to 'operator:type'
-      const raw = firstNonEmpty(tags.ownership, tags['operator:type'], '');
-      return raw;
-    }
-
-    fetchBtn.addEventListener('click', () => {
-      fetchHealthFacilities();
-    });
-
-    // Reapply filters when either dropdown changes
-    typeFilterEl.addEventListener('change', applyFiltersAndRender);
-    ownerFilterEl.addEventListener('change', applyFiltersAndRender);
-
-    function applyFiltersAndRender() {
-      const selectedType = typeFilterEl?.value ?? ALL;
-      const selectedOwner = ownerFilterEl?.value ?? ALL;
-
-      const filtered = allPois.filter(f => {
-        const tMatch = (selectedType === ALL) || (norm(f?.tags?.amenity) === norm(selectedType));
-        const ownVal = getOwnership(f?.tags);
-        const oMatch = (selectedOwner === ALL) || (norm(ownVal) === norm(selectedOwner));
-        return tMatch && oMatch;
-      });
-
-      plotFacilitiesOnMap(filtered);
-      displayResults(filtered);
-
-      const parts = [];
-      if (selectedType !== ALL) parts.push(`type "${selectedType}"`);
-      if (selectedOwner !== ALL) parts.push(`ownership "${selectedOwner}"`);
-      const what = parts.length ? parts.join(' & ') : 'all';
-      setLoading(false, `Showing ${filtered.length} facilities (${what}).`);
-    }
-
-    function setLoading(isLoading, msg = "") {
-      if (isLoading) {
-        fetchBtn.classList.add('loading');
-        fetchBtn.disabled = true;
-        statusEl.textContent = msg || "Loading…";
-      } else {
-        fetchBtn.classList.remove('loading');
-        fetchBtn.disabled = false;
-        statusEl.textContent = msg || "";
-      }
-    }
-
-    function fetchHealthFacilities() {
-      setLoading(true, "Fetching from Overpass…");
-
-        let bbox = "33.50,72.80,33.70,73.20";
-
-       let filterTypes = "hospital|clinic|doctor|dentist|pharmacy|veterinary|medical_centre|health_center|nursing_home|rehabilitation";
-
-
- const queryUrl =
-  "https://overpass-api.de/api/interpreter?data=" +
-  encodeURIComponent(`
-    [out:json][timeout:60];
-    (
-      node["amenity"~"${filterTypes}"](${bbox});
-      way["amenity"~"${filterTypes}"](${bbox});
-      relation["amenity"~"${filterTypes}"](${bbox});
-    );
-    out body qt;
-    >;
-    out skel qt;
-  `);
-
-      fetch(queryUrl)
-        .then(r => r.json())
-        .then(data => {
-          const elements = Array.isArray(data.elements) ? data.elements : [];
-          const pois = elements.filter(e => e.type === 'node' || e.type === 'way' || e.type === 'relation');
-
-          if (!pois.length) {
-            document.getElementById('results').innerHTML =
-              '<p>No health facilities found in the specified area.</p>';
-            showMap(false);
-            setLoading(false, "No results.");
-            disableAndResetFilters();
-            return;
-          }
-
-          allPois = pois;
-
-          // Populate both dropdowns
-          populateTypeDropdown(allPois);
-          populateOwnershipDropdown(allPois);
-
-          showMap(true);
-          applyFiltersAndRender(); // Calls plotFacilitiesOnMap and displayResults
-        })
-        .catch(err => {
-          console.error('Error fetching data:', err);
-          document.getElementById('results').innerHTML =
-            '<p>Error fetching data. Please try again later.</p>';
-          showMap(false);
-          setLoading(false, "Fetch failed.");
-          disableAndResetFilters();
-        });
-    }
-
-    function disableAndResetFilters() {
-      typeFilterEl.disabled = true;
-      typeFilterEl.innerHTML = `<option value="${ALL}">All types</option>`;
-      ownerFilterEl.disabled = true;
-      ownerFilterEl.innerHTML = `<option value="${ALL}">All ownerships</option>`;
-    }
-
-    function populateTypeDropdown(features) {
-      const set = new Set();
-      for (const f of features) {
-        const t = f?.tags?.amenity;
-        const clean = String(t ?? '').trim();
-        if (clean) set.add(clean);
-      }
-
-      const types = Array.from(set).sort((a, b) => a.localeCompare(b));
-      typeFilterEl.innerHTML = `<option value="${ALL}">All types</option>` +
-        types.map(t => `<option value="${t}">${t}</option>`).join('');
-      typeFilterEl.disabled = false;
-      typeFilterEl.value = ALL;
-    }
-
-    function populateOwnershipDropdown(features) {
-      const set = new Set();
-      for (const f of features) {
-        const own = String(getOwnership(f?.tags) ?? '').trim();
-        if (own) set.add(own);
-      }
-
-      const owners = Array.from(set).sort((a, b) => a.localeCompare(b));
-      ownerFilterEl.innerHTML = `<option value="${ALL}">All ownerships</option>` +
-        owners.map(o => `<option value="${o}">${o}</option>`).join('');
-      ownerFilterEl.disabled = false;
-      ownerFilterEl.value = ALL;
-    }
-
-    function getLatLon(feature) {
-      if (typeof feature.lat === 'number' && typeof feature.lon === 'number') {
-        return { lat: feature.lat, lon: feature.lon };
-      }
-      if (feature.center && typeof feature.center.lat === 'number' && typeof feature.center.lon === 'number') {
-        return { lat: feature.center.lat, lon: feature.center.lon };
-      }
-      return null;
-    }
-
-    function buildAddress(tags = {}) {
-      const parts = [];
-      if (tags['addr:housename']) parts.push(tags['addr:housename']);
-      const street = [tags['addr:housenumber'], tags['addr:street']].filter(Boolean).join(' ');
-      if (street) parts.push(street);
-      if (tags['addr:neighbourhood']) parts.push(tags['addr:neighbourhood']);
-      if (tags['addr:suburb']) parts.push(tags['addr:suburb']);
-      if (tags['addr:city']) parts.push(tags['addr:city']);
-      if (tags['addr:postcode']) parts.push(tags['addr:postcode']);
-      if (tags['addr:full']) parts.push(tags['addr:full']);
-      return parts.length ? parts.join(', ') : 'Address not available';
-    }
-
-    function displayResults(data) {
-      const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = '';
-
-      if (data.length === 0) {
-        resultsDiv.innerHTML = '<p>No facilities match the current filters.</p>';
-        return;
-      }
-
-      data.forEach(feature => {
-        const tags = feature.tags || {};
-        const name = firstNonEmpty(tags.name, 'Unnamed Facility');
-        const type = firstNonEmpty(tags.amenity, 'Unknown Type');
-        const phone = firstNonEmpty(tags['contact:phone'], tags.phone, '<span class="muted">N/A</span>');
-        const websiteRaw = firstNonEmpty(tags['contact:website'], tags.website, '');
-        const website = websiteRaw
-          ? `<a href="${websiteRaw}" target="_blank" rel="noopener">Website Link</a>`
-          : '<span class="muted">N/A</span>';
-        const address = buildAddress(tags);
-        const ownership = firstNonEmpty(getOwnership(tags), '<span class="muted">Not specified</span>');
-
-        const div = document.createElement('div');
-        div.className = 'facility';
-        div.innerHTML = `
-          <h3>${name}</h3>
-          <p><strong>Type:</strong> ${type}</p>
-          <p><strong>Ownership:</strong> ${ownership}</p>
-          <p><strong>Address:</strong> ${address}</p>
-          <p><strong>Phone:</strong> ${phone}</p>
-          <p><strong>Website:</strong> ${website}</p>
-        `;
-        resultsDiv.appendChild(div);
-      });
-    }
-
-    function plotFacilitiesOnMap(data) {
-      clearMarkers();
-      const bounds = L.latLngBounds([]);
-
-      data.forEach(feature => {
-        const ll = getLatLon(feature);
-        if (!ll) return;
-
-        const tags = feature.tags || {};
-        const name = firstNonEmpty(tags.name, 'Unnamed Facility');
-        const type = firstNonEmpty(tags.amenity, 'Unknown');
-        const address = buildAddress(tags);
-        const ownership = firstNonEmpty(getOwnership(tags), 'Not specified');
-
-        const marker = L.marker([ll.lat, ll.lon]).addTo(map)
-          .bindPopup(`
-            <strong>${name}</strong><br/>
-            <strong>Type:</strong> ${type}<br/>
-            <strong>Ownership:</strong> ${ownership}<br/>
-            <strong>Address:</strong> ${address}
-          `);
-
-        markers.push(marker);
-        bounds.extend([ll.lat, ll.lon]);
-      });
-
-      if (bounds.isValid()) {
-        map.fitBounds(bounds.pad(0.05));
-      } else if (map) {
-         // Fallback to initial view if no results are valid, but only if the map exists
-         map.setView([33.60, 73.10], 12);
-      }
-    }
-
-    function clearMarkers() {
-      markers.forEach(m => m.remove());
-      markers = [];
-    }
-
-    function initMap() {
-      if (!map) {
-        map = L.map('map').setView([33.60, 73.10], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-        // Add a nice subtle placeholder/label for the map
-        L.control.attribution({
-            prefix: '<div style="font-size: 0.7rem; color: #888;">Map View: Health Facilities Location</div>'
-        }).addTo(map);
-      }
-    }
-
-    function showMap(show = true) {
-      const mapContainer = document.getElementById('map');
-      if (show) {
-        mapContainer.style.display = 'block';
-        initMap();
-        // Force Leaflet to recalculate the map size after showing it
-        if(map) {
-            setTimeout(() => map.invalidateSize(), 0);
+        // Normalize safely
+        function norm(v) {
+            return String(v ?? '').toLowerCase().trim();
         }
-      } else {
-        mapContainer.style.display = 'none';
-      }
-    }
-  </script>
+
+        function firstNonEmpty(...vals) {
+            for (const v of vals) {
+                if (v && String(v).trim().length) return v;
+            }
+            return '';
+        }
+
+        // Extract a consistent ownership string from tags
+        function getOwnership(tags = {}) {
+            // Prefer explicit 'ownership', fallback to 'operator:type'
+            const raw = firstNonEmpty(tags.ownership, tags['operator:type'], '');
+            return raw;
+        }
+
+        // FIX: Added null check for tags
+        function hasFeature(tags, featureKey) {
+            if (!tags) return false;
+            
+            const value = tags[featureKey];
+            if (!value) return false;
+            const normalized = norm(value);
+            return normalized === 'yes' || normalized === 'true' || normalized === '1';
+        }
+
+        fetchBtn.addEventListener('click', () => {
+            fetchHealthFacilities();
+        });
+
+        // Reapply filters when either dropdown changes
+        typeFilterEl.addEventListener('change', applyFiltersAndRender);
+        ownerFilterEl.addEventListener('change', applyFiltersAndRender);
+        featureFilterEl.addEventListener('change', applyFiltersAndRender); 
+
+        function applyFiltersAndRender() {
+            const selectedType = typeFilterEl?.value ?? ALL;
+            const selectedOwner = ownerFilterEl?.value ?? ALL;
+            const selectedFeature = featureFilterEl?.value ?? ALL; 
+
+            const filtered = allPois.filter(f => {
+                // Safe access to tags property using optional chaining where appropriate
+                const tags = f?.tags || {};
+                
+                const tMatch = (selectedType === ALL) || (norm(tags.amenity) === norm(selectedType));
+                const ownVal = getOwnership(tags);
+                const oMatch = (selectedOwner === ALL) || (norm(ownVal) === norm(selectedOwner));
+                const fMatch = (selectedFeature === ALL) || hasFeature(tags, selectedFeature);
+                
+                return tMatch && oMatch && fMatch;
+            });
+
+            plotFacilitiesOnMap(filtered);
+            displayResults(filtered);
+
+            const parts = [];
+            if (selectedType !== ALL) parts.push(`type "${selectedType}"`);
+            if (selectedOwner !== ALL) parts.push(`ownership "${selectedOwner}"`);
+            if (selectedFeature !== ALL) parts.push(`feature "${selectedFeature.replace(/_/g, ' ')}"`);
+            
+            const what = parts.length ? parts.join(' & ') : 'all';
+            setLoading(false, `Showing ${filtered.length} facilities (${what}).`);
+        }
+
+        function setLoading(isLoading, msg = "") {
+            if (isLoading) {
+                fetchBtn.classList.add('loading');
+                fetchBtn.disabled = true;
+                statusEl.textContent = msg || "Loading…";
+            } else {
+                fetchBtn.classList.remove('loading');
+                fetchBtn.disabled = false;
+                statusEl.textContent = msg || "";
+            }
+        }
+
+        function fetchHealthFacilities() {
+            setLoading(true, "Fetching from Overpass…");
+
+            // Bounding Boxes for Islamabad and Rawalpindi
+            const bbox_isb = "33.55,72.80,33.85,73.20"; // Islamabad
+            const bbox_rwp = "33.50,72.80,33.70,73.20"; // Rawalpindi
+
+            let filterTypes = "hospital|clinic|doctor|dentist|pharmacy|veterinary|medical_centre|health_center|nursing_home|rehabilitation";
+
+            // THE CORRECTED OVERPASS QUERY FOR BOTH AREAS
+            const query = `
+                [out:json][timeout:60];
+                (
+                    // Islamabad (33.55,72.80,33.85,73.20)
+                    node["amenity"~"${filterTypes}"](${bbox_isb});
+                    way["amenity"~"${filterTypes}"](${bbox_isb});
+                    relation["amenity"~"${filterTypes}"](${bbox_isb});
+                    
+                    // Rawalpindi (33.50,72.80,33.70,73.20)
+                    node["amenity"~"${filterTypes}"](${bbox_rwp});
+                    way["amenity"~"${filterTypes}"](${bbox_rwp});
+                    relation["amenity"~"${filterTypes}"](${bbox_rwp});
+                );
+                out body qt;
+                >;
+                out skel qt;
+            `;
+
+            const queryUrl =
+                "https://overpass-api.de/api/interpreter?data=" +
+                encodeURIComponent(query);
+            // END CORRECTED OVERPASS QUERY
+
+            fetch(queryUrl)
+                .then(r => {
+                    if (!r.ok) {
+                        // Check for non-200 status codes
+                        throw new Error(`HTTP error! Status: ${r.status}`);
+                    }
+                    return r.json();
+                })
+                .then(data => {
+                    const elements = Array.isArray(data.elements) ? data.elements : [];
+                    // Filter to only include elements that are nodes (points) or have center data (ways/relations)
+                    // and ensure the element structure is somewhat valid for a POI
+                    const pois = elements.filter(e => (e.type === 'node' || e.type === 'way' || e.type === 'relation') && (e.lat || e.center));
+
+                    if (!pois.length) {
+                        document.getElementById('results').innerHTML =
+                            '<p>No health facilities found in the specified area.</p>';
+                        showMap(false);
+                        setLoading(false, "No results.");
+                        disableAndResetFilters();
+                        return;
+                    }
+
+                    allPois = pois;
+
+                    // Populate all dropdowns
+                    populateTypeDropdown(allPois);
+                    populateOwnershipDropdown(allPois);
+                    populateFeatureDropdown(allPois); 
+
+                    showMap(true);
+                    applyFiltersAndRender(); 
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    document.getElementById('results').innerHTML =
+                        `<p>Error fetching data: ${err.message}. Please try again later.</p>`;
+                    showMap(false);
+                    setLoading(false, "Fetch failed.");
+                    disableAndResetFilters();
+                });
+        }
+
+        function disableAndResetFilters() {
+            typeFilterEl.disabled = true;
+            typeFilterEl.innerHTML = `<option value="${ALL}">All types</option>`;
+            ownerFilterEl.disabled = true;
+            ownerFilterEl.innerHTML = `<option value="${ALL}">All ownerships</option>`;
+            featureFilterEl.disabled = true; 
+            featureFilterEl.innerHTML = `<option value="${ALL}">All features</option>`;
+        }
+
+        function populateTypeDropdown(features) {
+            const set = new Set();
+            for (const f of features) {
+                const t = f?.tags?.amenity;
+                const clean = String(t ?? '').trim();
+                if (clean) set.add(clean);
+            }
+
+            const types = Array.from(set).sort((a, b) => a.localeCompare(b));
+            typeFilterEl.innerHTML = `<option value="${ALL}">All types</option>` +
+                types.map(t => `<option value="${t}">${t}</option>`).join('');
+            typeFilterEl.disabled = false;
+            typeFilterEl.value = ALL;
+        }
+
+        function populateOwnershipDropdown(features) {
+            const set = new Set();
+            for (const f of features) {
+                const own = String(getOwnership(f?.tags) ?? '').trim();
+                if (own) set.add(own);
+            }
+
+            const owners = Array.from(set).sort((a, b) => a.localeCompare(b));
+            ownerFilterEl.innerHTML = `<option value="${ALL}">All ownerships</option>` +
+                owners.map(o => `<option value="${o}">${o}</option>`).join('');
+            ownerFilterEl.disabled = false;
+            ownerFilterEl.value = ALL;
+        }
+        
+        function populateFeatureDropdown(features) {
+            const availableFeatures = new Set();
+            for (const f of features) {
+                // FIX: Pass f.tags (which can be undefined) to the now-safe hasFeature
+                for (const tag of SERVICE_TAGS) {
+                    if (hasFeature(f.tags, tag)) {
+                        availableFeatures.add(tag);
+                    }
+                }
+            }
+            
+            const featuresList = Array.from(availableFeatures).sort((a, b) => a.localeCompare(b));
+            // Replace underscore with space for display purposes in the dropdown
+            featureFilterEl.innerHTML = `<option value="${ALL}">All features</option>` +
+                featuresList.map(t => `<option value="${t}">${t.replace(/_/g, ' ')}</option>`).join('');
+            
+            featureFilterEl.disabled = featuresList.length === 0;
+            featureFilterEl.value = ALL;
+        }
+
+
+        function getLatLon(feature) {
+            if (typeof feature.lat === 'number' && typeof feature.lon === 'number') {
+                return { lat: feature.lat, lon: feature.lon };
+            }
+            if (feature.center && typeof feature.center.lat === 'number' && typeof feature.center.lon === 'number') {
+                return { lat: feature.center.lat, lon: feature.center.lon };
+            }
+            return null;
+        }
+
+        function buildAddress(tags = {}) {
+            const parts = [];
+            if (tags['addr:housename']) parts.push(tags['addr:housename']);
+            const street = [tags['addr:housenumber'], tags['addr:street']].filter(Boolean).join(' ');
+            if (street) parts.push(street);
+            if (tags['addr:neighbourhood']) parts.push(tags['addr:neighbourhood']);
+            if (tags['addr:suburb']) parts.push(tags['addr:suburb']);
+            if (tags['addr:city']) parts.push(tags['addr:city']);
+            if (tags['addr:postcode']) parts.push(tags['addr:postcode']);
+            if (tags['addr:full']) parts.push(tags['addr:full']);
+            return parts.length ? parts.join(', ') : 'Address not available';
+        }
+
+        /**
+         * MODIFIED: Simplified to only show facility name and type.
+         */
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (data.length === 0) {
+                resultsDiv.innerHTML = '<p>No facilities match the current filters.</p>';
+                return;
+            }
+
+            data.forEach(feature => {
+                const tags = feature.tags || {};
+                const name = firstNonEmpty(tags.name, 'Unnamed Facility');
+                const type = firstNonEmpty(tags.amenity, 'Unknown Type');
+                
+                const div = document.createElement('div');
+                div.className = 'facility';
+                div.innerHTML = `
+                    <h3>${name}</h3>
+                    <p><strong>Type:</strong> ${type}</p>
+                `;
+                resultsDiv.appendChild(div);
+            });
+        }
+        // END MODIFIED FUNCTION
+
+        function plotFacilitiesOnMap(data) {
+            clearMarkers();
+            const bounds = L.latLngBounds([]);
+
+            data.forEach(feature => {
+                const ll = getLatLon(feature);
+                if (!ll) return;
+
+                const tags = feature.tags || {};
+                const name = firstNonEmpty(tags.name, 'Unnamed Facility');
+                const type = firstNonEmpty(tags.amenity, 'Unknown');
+                const address = buildAddress(tags);
+                const ownership = firstNonEmpty(getOwnership(tags), 'Not specified');
+                
+                let featuresList = SERVICE_TAGS.filter(tag => hasFeature(tags, tag)).map(t => t.replace(/_/g, ' ')).join(', ');
+
+                const marker = L.marker([ll.lat, ll.lon]).addTo(map)
+                    .bindPopup(`
+                        <strong>${name}</strong><br/>
+                        <strong>Type:</strong> ${type}<br/>
+                        <strong>Ownership:</strong> ${ownership}<br/>
+                        ${featuresList ? `<strong>Features:</strong> ${featuresList}<br/>` : ''}
+                        <strong>Address:</strong> ${address}
+                    `);
+
+                markers.push(marker);
+                bounds.extend([ll.lat, ll.lon]);
+            });
+
+            // Fit map to the bounds of the markers, or set a default view if no markers
+            if (bounds.isValid()) {
+                map.fitBounds(bounds.pad(0.05));
+            } else if (map) {
+                // Default center of the combined area
+                map.setView([33.68, 73.05], 11); 
+            }
+        }
+
+        function clearMarkers() {
+            markers.forEach(m => m.remove());
+            markers = [];
+        }
+
+        function initMap() {
+            if (!map) {
+                // Center the map roughly between Rawalpindi and Islamabad
+                map = L.map('map').setView([33.68, 73.05], 11); 
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                }).addTo(map);
+                // Add a nice subtle placeholder/label for the map
+                L.control.attribution({
+                    prefix: '<div style="font-size: 0.7rem; color: #888;">Map View: Health Facilities Location</div>'
+                }).addTo(map);
+            }
+        }
+
+        function showMap(show = true) {
+            const mapContainer = document.getElementById('map');
+            if (show) {
+                mapContainer.style.display = 'block';
+                initMap();
+                // Force Leaflet to recalculate the map size after showing it
+                if(map) {
+                    setTimeout(() => map.invalidateSize(), 0);
+                }
+            } else {
+                mapContainer.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
