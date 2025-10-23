@@ -144,53 +144,67 @@
                         <button data-go="home" class="text-sm text-blue-700 hover:underline"><i class="fas fa-home mr-1"></i> Back to Home</button>
                     </div>
 
-                    <div id="controls" class="flex flex-wrap items-center gap-4 mb-6 p-3 bg-blue-50 rounded-lg" aria-label="Data Filters">
+                    <!-- REVISED: Controls use a responsive grid for consistent alignment -->
+                    <div id="controls" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-3 bg-blue-50 rounded-xl" aria-label="Data Filters">
 
                         <!-- City Filter -->
-                        <label for="cityFilter" class="font-medium text-gray-700">City:</label>
-                        <select id="cityFilter" class="px-3 py-2 rounded-lg border border-blue-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            <!-- Populated by JS -->
-                        </select>
+                        <div class="flex flex-col">
+                            <label for="cityFilter" class="font-medium text-gray-700 mb-1">City:</label>
+                            <select id="cityFilter" class="px-3 py-2 rounded-lg border border-blue-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
                         
-                        <!-- New Search Input -->
-                        <label for="nameSearch" class="font-medium text-gray-700">Search Name:</label>
-                        <input type="text" id="nameSearch" placeholder="Facility name..." class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto flex-grow" disabled>
+                        <!-- New Search Input (Spans 1 column on all views, aligns nicely with other filters) -->
+                        <div class="flex flex-col">
+                            <label for="nameSearch" class="font-medium text-gray-700 mb-1">Search Name:</label>
+                            <input type="text" id="nameSearch" placeholder="Facility name..." class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled>
+                        </div>
 
+                        <div class="flex flex-col">
+                            <label for="typeFilter" class="font-medium text-gray-700 mb-1">Type:</label>
+                            <select id="typeFilter" class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled>
+                                <option value="__ALL__">All types</option>
+                            </select>
+                        </div>
 
-                        <label for="typeFilter" class="font-medium text-gray-700">Type:</label>
-                        <select id="typeFilter" class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled>
-                            <option value="__ALL__">All types</option>
-                        </select>
+                        <div class="flex flex-col">
+                            <label for="ownerFilter" class="font-medium text-gray-700 mb-1">Ownership:</label>
+                            <select id="ownerFilter" class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled>
+                                <option value="__ALL__">All ownerships</option>
+                            </select>
+                        </div>
 
-                        <label for="ownerFilter" class="font-medium text-gray-700">Ownership:</label>
-                        <select id="ownerFilter" class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled>
-                            <option value="__ALL__">All ownerships</option>
-                        </select>
+                        <div class="flex flex-col">
+                            <label for="featureFilter" class="font-medium text-gray-700 mb-1">Feature:</label>
+                            <select id="featureFilter" class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled>
+                                <option value="__ALL__">All features</option>
+                            </select>
+                        </div>
 
-                        <label for="featureFilter" class="font-medium text-gray-700">Feature:</label>
-                        <select id="featureFilter" class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled>
-                            <option value="__ALL__">All features</option>
-                        </select>
+                        <!-- Sort Filter -->
+                        <div class="flex flex-col">
+                            <label for="sortFilter" class="font-medium text-gray-700 mb-1">Sort By:</label>
+                            <select id="sortFilter" class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="name_asc">Name (A-Z)</option>
+                                <option value="type_asc">Type (A-Z)</option>
+                            </select>
+                        </div>
 
-                        <!-- Sort Filter (New) -->
-                        <label for="sortFilter" class="font-medium text-gray-700">Sort By:</label>
-                        <select id="sortFilter" class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            <option value="name_asc">Name (A-Z)</option>
-                            <option value="type_asc">Type (A-Z)</option>
-                        </select>
-
+                        <!-- Fetch Data Button spans 1 column on large screens, or 2 columns on small screens -->
                         <button id="fetchDataButton"
-                                class="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold shadow-lg hover:bg-green-700 transition duration-200 disabled:opacity-50 disabled:cursor-wait mt-2 sm:mt-0 w-full sm:w-auto">
+                                class="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold shadow-lg hover:bg-green-700 transition duration-200 disabled:opacity-50 disabled:cursor-wait sm:col-span-1 lg:col-span-1">
                             <i class="fas fa-magnifying-glass mr-2"></i> Fetch Data / Apply City Filter
                         </button>
                         
-                        <!-- NEW: Reset Filters Button -->
+                        <!-- Reset Filters Button spans 1 column on all views -->
                         <button id="resetFiltersButton"
-                                class="bg-gray-200 text-gray-700 px-5 py-2 rounded-lg font-semibold shadow hover:bg-gray-300 transition duration-200 mt-2 sm:mt-0 w-full sm:w-auto">
+                                class="bg-gray-200 text-gray-700 px-5 py-2 rounded-lg font-semibold shadow hover:bg-gray-300 transition duration-200 lg:col-span-1">
                             <i class="fas fa-filter-circle-xmark mr-2"></i> Reset Filters
                         </button>
 
-                        <span id="status-message" class="text-sm text-gray-600 italic w-full mt-2">Select a city and click the button to load data from OpenStreetMap.</span>
+                        <!-- Status Message spans all columns -->
+                        <span id="status-message" class="text-sm text-gray-600 italic sm:col-span-2 lg:col-span-3">Select a city and click the button to load data from OpenStreetMap.</span>
                     </div>
 
                     <!-- NEW: Data Summary Panel -->
